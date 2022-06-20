@@ -408,238 +408,258 @@ def make_confusion_matrix(cf,
         plt.yticks(np.arange(3)+0.5,("Title", "Prose Text", "Miscellany"), va="center")
 
 
-# set a seed to get deterministic results
-np.random.seed(1)
-torch.manual_seed(1)
-torch.cuda.manual_seed_all(1)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-
 typographic_element = {"h2": 1, "p": 2, "div": 3}
-avoid = {'Data/Misc/squarespace/Misc.html','Data/Misc/Feat/Misc.html','Data/TOS/CBSLocal/TOS.html','Data/TOS/MS/TOS.html','Data/TOS/meetup/TOS.html', 'Data/PP/conservativereview.com/priv.html'}
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
-data_misc = glob.glob(os.path.join('Data/Misc', '*', 'Misc.html'))
-data_tos = glob.glob(os.path.join('Data/TOS', '*', 'TOS.html'))
-data_pp = glob.glob(os.path.join('Data/PP', '*', 'priv.html'))
-
-vali_test_idx = np.random.choice(291, 116, False)
-vali_idx, test_idx = vali_test_idx[:58], vali_test_idx[58:]
-data, filter_features, classifier_features, labels_train, data_train, data_vali, data_test = data_pp + data_misc + data_tos, [], [], [], [], [], []
-count = 0
-s33 = set(vali_idx)
-for e in test_idx:
-    s33.add(e)
-    
-for i in range(len(data)):
-    if data[i] in avoid:
-        continue
-        
-    if i in vali_idx:
-        data_vali.append(data[i])
-    elif i in test_idx:
-        data_test.append(data[i])
-    else:
-        data_train.append(data[i])
-
-print("test id:", test_idx)
-
-text_train, text_vali, text_test = [], [], []
-for file in data_train:
-    if file in avoid:
-        continue
-    raw_text, d = read_file(file)
-    text_train += raw_text
-    file_break = file.split("/")
-    file_break[-1] = "gold.html"
-    test_file = "/".join([f for f in file_break])
-    raw_text_test, d_test = read_file(test_file)
-    len1 = len(raw_text_test)
-    file_label = create_labels(raw_text, raw_text_test, d_test)
-
-    filter_features += build_filter_features(raw_text, d)
-
-    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
-    nonzero_text = [raw_text[i] for i in idx_interested]
-    classifier_features += build_classifier_features(nonzero_text, d, idx_interested)
-    labels_train = labels_train + file_label
-
-filter_features_vali, classifier_features_vali, labels_vali = [], [], []
-for file in data_vali:
-    if file in avoid:
-        continue
-    raw_text, d = read_file(file)
-    text_vali += raw_text
-    file_break = file.split("/")
-    file_break[-1] = "gold.html"
-    test_file = "/".join([f for f in file_break])
-    raw_text_test, d_test = read_file(test_file)
-    file_label = create_labels(raw_text, raw_text_test, d_test)
-
-    filter_features_vali += build_filter_features(raw_text, d)
-
-    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
-    nonzero_text = [raw_text[i] for i in idx_interested]
-    classifier_features_vali += build_classifier_features(nonzero_text, d, idx_interested)
-    labels_vali = labels_vali + file_label
-
-filter_features_test, classifier_features_test, labels_test, size_each_test = [], [], [], []
-for file in data_test:
-    raw_text, d = read_file(file)
-    size_each_test.append(len(raw_text))
-    text_test += raw_text
-    file_break = file.split("/")
-    file_break[-1] = "gold.html"
-    test_file = "/".join([f for f in file_break])
-    raw_text_test, d_test = read_file(test_file)
-    file_label = create_labels(raw_text, raw_text_test, d_test)
-    len2 = np.count_nonzero(np.array(file_label) > 0)
-    filter_features_test += build_filter_features(raw_text, d)
-
-    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
-    nonzero_text = [raw_text[i] for i in idx_interested]
-    classifier_features_test += build_classifier_features(nonzero_text, d, idx_interested)
-
-    labels_test = labels_test + file_label
-
-# create 3 lists that hold all the sets of categorical features from filter and classifier
-f_set, c_set = [], []
-for i in range(4):
-    s = set()
-    for f in filter_features:
-        s.add(f[i + 2])
-    for f in filter_features_vali:
-        s.add(f[i + 2])
-    for f in filter_features_test:
-        s.add(f[i + 2])
-    order_l = list(s)
-    order_l.sort(reverse=True)
-    f_set.append(order_l)
-
-for i in range(2):
-    s = set()
-    for f in classifier_features:
-        s.add(f[i + 3])
-    for f in classifier_features_vali:
-        s.add(f[i + 3])
-    for f in classifier_features_test:
-        s.add(f[i + 3])
-    order_l = list(s)
-    order_l.sort(reverse=True)
-    c_set.append(order_l)
-
-# save categorical_features of both classifier and filter to a csv file
-with open('output/categorical_features.csv', 'w') as f:
-    w = csv.writer(f)
-    for r1, r2, r3, r4, r5, r6 in zip_longest(f_set[0], f_set[1], f_set[2], f_set[3], c_set[0], c_set[1]):
-        w.writerow([r1, r2, r3, r4, r5, r6])
-
-bert_feature = embed_raw_text(text_train, tokenizer)
-bert_feature_vali = embed_raw_text(text_vali, tokenizer)
-bert_feature_test = embed_raw_text(text_test, tokenizer)
-bert_feature, bert_feature_vali = np.array(bert_feature), np.array(bert_feature_vali) 
-bert_feature_test = np.array(bert_feature_test)
-
-filter_numerical, filter_categorical, size_F  = [], [], len(filter_features)
-size_F_vali = len(filter_features_vali)
-
-for row in filter_features:
-    filter_numerical.append([row[0], row[1]])
-    filter_categorical.append([row[2], row[3], row[4], row[5]])
-
-for row in filter_features_vali:
-    filter_numerical.append([row[0], row[1]])
-    filter_categorical.append([row[2], row[3], row[4], row[5]])
-    
-for row in filter_features_test:
-    filter_numerical.append([row[0], row[1]])
-    filter_categorical.append([row[2], row[3], row[4], row[5]])
-
-enc_filter = OneHotEncoder(handle_unknown='ignore', sparse=False)
-encoded_F = enc_filter.fit_transform(filter_categorical)
-
-train_x_F, train_y_F = np.hstack((np.array(filter_numerical)[:size_F, :], encoded_F[:size_F, :], bert_feature)), np.array([l[0] for l in labels_train])
-vali_x_F, vali_y_F = np.hstack((np.array(filter_numerical)[size_F:(size_F+size_F_vali), :], encoded_F[size_F:(size_F+size_F_vali), :], bert_feature_vali)), np.array([l[0] for l in labels_vali])
-test_x_F, test_y_F = np.hstack((np.array(filter_numerical)[(size_F+size_F_vali):, :], encoded_F[(size_F+size_F_vali):, :], bert_feature_test)), np.array([l[0] for l in labels_test])
-joblib.dump(enc_filter, 'output/encoder_F.joblib')
-print("The encoder for the filter is successfully saved!")
-
-l = [x for x in range(2, encoded_F[:size_F, :].shape[1] + 2)]
-num_0 = np.count_nonzero(train_y_F == 0)
-print("Upsampling for preparing the data for the filter")
-smote_nc = SMOTENC(categorical_features=l, sampling_strategy={1: num_0}, random_state=0)
-train_x_F_over, train_y_F_over = smote_nc.fit_sample(train_x_F, train_y_F)
-
-##### Test on Filter #####
-target_names = ['class 0', 'class 1']
-xgb_F = xgb.XGBClassifier(learning_rate=0.1)
-print("Fitting the training model for the filter...")
-xgb_F.fit(train_x_F, train_y_F)
-pred_F = xgb_F.predict(test_x_F)
-print(accuracy_score(test_y_F, pred_F))
-print(classification_report(test_y_F, pred_F, target_names=target_names, digits=5))
-matrix_F = confusion_matrix(test_y_F, pred_F, labels=[0, 1])
-categories = ["Irrelevance", "Pertinence"]
-make_confusion_matrix(matrix_F, categories=categories, sum_stats=False, title="Confusion Matrix of Filter")
-
-joblib.dump(xgb_F, 'output/xgb_F.pkl')
-print("The filter is successfully saved!")
-
-plt.rcParams.update({'font.size': 15})
-sklearn.metrics.plot_roc_curve(xgb_F, test_x_F, test_y_F, response_method="predict_proba",drop_intermediate=False, name="ROC Curve")
-plt.ylabel('True Positive Rate')
-plt.xlabel('False Positive Rate')
-plt.title("ROC Curver of Filter\n(Positive label: Pertinence)")
-plt.show()
+def main():
+	# set a seed to get deterministic results
+	np.random.seed(1)
+	torch.manual_seed(1)
+	torch.cuda.manual_seed_all(1)
+	torch.backends.cudnn.deterministic = True
+	torch.backends.cudnn.benchmark = False
 
 
-bert_feature_C = np.array([bert_feature[i] for i in range(len(labels_train)) if labels_train[i][0] == 1])
-bert_feature_vali_C = np.array([bert_feature_vali[i] for i in range(len(labels_vali)) if labels_vali[i][0] == 1])
-bert_feature_test_C = np.array([bert_feature_test[i] for i in range(len(labels_test)) if labels_test[i][0] == 1])
+	avoid = {'Data/Misc/squarespace/Misc.html','Data/Misc/Feat/Misc.html','Data/TOS/CBSLocal/TOS.html','Data/TOS/MS/TOS.html','Data/TOS/meetup/TOS.html', 'Data/PP/conservativereview.com/priv.html'}
+	tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
-classifier_numerical, classifier_categorical, size_C, size_C_vali = [], [], len(classifier_features), len(classifier_features_vali)
-for row in classifier_features:
-    classifier_numerical.append([row[0], row[1], row[2]])
-    classifier_categorical.append([row[3], row[4]])
+	# data_misc = glob.glob(os.path.join('Data/Misc', '*', 'Misc.html'))
+	# data_tos = glob.glob(os.path.join('Data/TOS', '*', 'TOS.html'))
+	# data_pp = glob.glob(os.path.join('Data/PP', '*', 'priv.html'))
 
-for row in classifier_features_vali:
-    classifier_numerical.append([row[0], row[1], row[2]])
-    classifier_categorical.append([row[3], row[4]])
+	data_misc, data_tos, data_pp = [], [], []
+	with open ("data_misc.txt", "r") as f:
+	    temp_list = f.readlines()
+	    for t in temp_list:
+	        data_misc.append(t.replace("\n", ""))
 
-for row in classifier_features_test:
-    classifier_numerical.append([row[0], row[1], row[2]])
-    classifier_categorical.append([row[3], row[4]])
+	with open ("data_tos.txt", "r") as f:
+	    temp_list = f.readlines()
+	    for t in temp_list:
+	        data_tos.append(t.replace("\n", ""))
 
-enc_classifier = OneHotEncoder(handle_unknown='ignore', sparse=False)
-encoded_C = enc_classifier.fit_transform(classifier_categorical)
+	with open ("data_pp.txt", "r") as f:
+	    temp_list = f.readlines()
+	    for t in temp_list:
+	        data_pp.append(t.replace("\n", ""))
 
-train_x_C, train_y_C = np.hstack((np.array(classifier_numerical)[:size_C, :], encoded_C[:size_C, :], bert_feature_C)), np.array([l[1] for l in labels_train if l[0] == 1])
-vali_x_C, vali_y_C = np.hstack((np.array(classifier_numerical)[size_C: (size_C+size_C_vali), :], encoded_C[size_C: (size_C+size_C_vali), :], bert_feature_vali_C)), np.array([l[1] for l in labels_vali if l[0] == 1])
-test_x_C, test_y_C = np.hstack((np.array(classifier_numerical)[(size_C+size_C_vali):, :], encoded_C[(size_C+size_C_vali):, :], bert_feature_test_C)), np.array([l[1] for l in labels_test if l[0] == 1])
-joblib.dump(enc_classifier, 'output/encoder_C.joblib')
-print("The encoder for the typographic classifier is successfully saved!")
+	vali_test_idx = np.random.choice(291, 116, False)
+	vali_idx, test_idx = vali_test_idx[:58], vali_test_idx[58:]
+	data, filter_features, classifier_features, labels_train, data_train, data_vali, data_test = data_pp + data_misc + data_tos, [], [], [], [], [], []
+	count = 0
+	s33 = set(vali_idx)
+	for e in test_idx:
+	    s33.add(e)
+	    
+	for i in range(len(data)):
+	    if data[i] in avoid:
+	        continue
+	        
+	    if i in vali_idx:
+	        data_vali.append(data[i])
+	    elif i in test_idx:
+	        data_test.append(data[i])
+	    else:
+	        data_train.append(data[i])
+
+	print("test id:", test_idx)
+
+	text_train, text_vali, text_test = [], [], []
+	for file in data_train:
+	    if file in avoid:
+	        continue
+	    raw_text, d = read_file(file)
+	    text_train += raw_text
+	    file_break = file.split("/")
+	    file_break[-1] = "gold.html"
+	    test_file = "/".join([f for f in file_break])
+	    raw_text_test, d_test = read_file(test_file)
+	    len1 = len(raw_text_test)
+	    file_label = create_labels(raw_text, raw_text_test, d_test)
+
+	    filter_features += build_filter_features(raw_text, d)
+
+	    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
+	    nonzero_text = [raw_text[i] for i in idx_interested]
+	    classifier_features += build_classifier_features(nonzero_text, d, idx_interested)
+	    labels_train = labels_train + file_label
+
+	filter_features_vali, classifier_features_vali, labels_vali = [], [], []
+	for file in data_vali:
+	    if file in avoid:
+	        continue
+	    raw_text, d = read_file(file)
+	    text_vali += raw_text
+	    file_break = file.split("/")
+	    file_break[-1] = "gold.html"
+	    test_file = "/".join([f for f in file_break])
+	    raw_text_test, d_test = read_file(test_file)
+	    file_label = create_labels(raw_text, raw_text_test, d_test)
+
+	    filter_features_vali += build_filter_features(raw_text, d)
+
+	    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
+	    nonzero_text = [raw_text[i] for i in idx_interested]
+	    classifier_features_vali += build_classifier_features(nonzero_text, d, idx_interested)
+	    labels_vali = labels_vali + file_label
+
+	filter_features_test, classifier_features_test, labels_test, size_each_test = [], [], [], []
+	for file in data_test:
+	    raw_text, d = read_file(file)
+	    size_each_test.append(len(raw_text))
+	    text_test += raw_text
+	    file_break = file.split("/")
+	    file_break[-1] = "gold.html"
+	    test_file = "/".join([f for f in file_break])
+	    raw_text_test, d_test = read_file(test_file)
+	    file_label = create_labels(raw_text, raw_text_test, d_test)
+	    len2 = np.count_nonzero(np.array(file_label) > 0)
+	    filter_features_test += build_filter_features(raw_text, d)
+
+	    idx_interested = [i for i in range(len(raw_text)) if file_label[i][0] == 1]
+	    nonzero_text = [raw_text[i] for i in idx_interested]
+	    classifier_features_test += build_classifier_features(nonzero_text, d, idx_interested)
+
+	    labels_test = labels_test + file_label
+
+	# create 3 lists that hold all the sets of categorical features from filter and classifier
+	f_set, c_set = [], []
+	for i in range(4):
+	    s = set()
+	    for f in filter_features:
+	        s.add(f[i + 2])
+	    for f in filter_features_vali:
+	        s.add(f[i + 2])
+	    for f in filter_features_test:
+	        s.add(f[i + 2])
+	    order_l = list(s)
+	    order_l.sort(reverse=True)
+	    f_set.append(order_l)
+
+	for i in range(2):
+	    s = set()
+	    for f in classifier_features:
+	        s.add(f[i + 3])
+	    for f in classifier_features_vali:
+	        s.add(f[i + 3])
+	    for f in classifier_features_test:
+	        s.add(f[i + 3])
+	    order_l = list(s)
+	    order_l.sort(reverse=True)
+	    c_set.append(order_l)
+
+	# save categorical_features of both classifier and filter to a csv file
+	with open('output/categorical_features.csv', 'w') as f:
+	    w = csv.writer(f)
+	    for r1, r2, r3, r4, r5, r6 in zip_longest(f_set[0], f_set[1], f_set[2], f_set[3], c_set[0], c_set[1]):
+	        w.writerow([r1, r2, r3, r4, r5, r6])
+
+	bert_feature = embed_raw_text(text_train, tokenizer)
+	bert_feature_vali = embed_raw_text(text_vali, tokenizer)
+	bert_feature_test = embed_raw_text(text_test, tokenizer)
+	bert_feature, bert_feature_vali = np.array(bert_feature), np.array(bert_feature_vali) 
+	bert_feature_test = np.array(bert_feature_test)
+
+	filter_numerical, filter_categorical, size_F  = [], [], len(filter_features)
+	size_F_vali = len(filter_features_vali)
+
+	for row in filter_features:
+	    filter_numerical.append([row[0], row[1]])
+	    filter_categorical.append([row[2], row[3], row[4], row[5]])
+
+	for row in filter_features_vali:
+	    filter_numerical.append([row[0], row[1]])
+	    filter_categorical.append([row[2], row[3], row[4], row[5]])
+	    
+	for row in filter_features_test:
+	    filter_numerical.append([row[0], row[1]])
+	    filter_categorical.append([row[2], row[3], row[4], row[5]])
+
+	enc_filter = OneHotEncoder(handle_unknown='ignore', sparse=False)
+	encoded_F = enc_filter.fit_transform(filter_categorical)
+
+	train_x_F, train_y_F = np.hstack((np.array(filter_numerical)[:size_F, :], encoded_F[:size_F, :], bert_feature)), np.array([l[0] for l in labels_train])
+	vali_x_F, vali_y_F = np.hstack((np.array(filter_numerical)[size_F:(size_F+size_F_vali), :], encoded_F[size_F:(size_F+size_F_vali), :], bert_feature_vali)), np.array([l[0] for l in labels_vali])
+	test_x_F, test_y_F = np.hstack((np.array(filter_numerical)[(size_F+size_F_vali):, :], encoded_F[(size_F+size_F_vali):, :], bert_feature_test)), np.array([l[0] for l in labels_test])
+	joblib.dump(enc_filter, 'output/encoder_F.joblib')
+	print("The encoder for the filter is successfully saved!")
+
+	l = [x for x in range(2, encoded_F[:size_F, :].shape[1] + 2)]
+	num_0 = np.count_nonzero(train_y_F == 0)
+	print("Upsampling for preparing the data for the filter")
+	smote_nc = SMOTENC(categorical_features=l, sampling_strategy={1: num_0}, random_state=0)
+	train_x_F_over, train_y_F_over = smote_nc.fit_sample(train_x_F, train_y_F)
+
+	##### Test on Filter #####
+	target_names = ['class 0', 'class 1']
+	xgb_F = xgb.XGBClassifier(learning_rate=0.1)
+	print("Fitting the training model for the filter...")
+	xgb_F.fit(train_x_F_over, train_y_F_over)
+	pred_F = xgb_F.predict(test_x_F)
+	print(accuracy_score(test_y_F, pred_F))
+	print(classification_report(test_y_F, pred_F, target_names=target_names, digits=5))
+	matrix_F = confusion_matrix(test_y_F, pred_F, labels=[0, 1])
+	categories = ["Irrelevance", "Pertinence"]
+	make_confusion_matrix(matrix_F, categories=categories, sum_stats=False, title="Confusion Matrix of Filter")
+
+	joblib.dump(xgb_F, 'output/xgb_F.pkl')
+	print("The filter is successfully saved!")
+
+	plt.rcParams.update({'font.size': 15})
+	sklearn.metrics.plot_roc_curve(xgb_F, test_x_F, test_y_F, response_method="predict_proba",drop_intermediate=False, name="ROC Curve")
+	plt.ylabel('True Positive Rate')
+	plt.xlabel('False Positive Rate')
+	plt.title("ROC Curver of Filter\n(Positive label: Pertinence)")
+	plt.show()
 
 
-num_2 = np.count_nonzero(train_y_C == 2)
-l = [x for x in range(3, encoded_C[:size_C, :].shape[1] + 3)]
-print("Upsampling for preparing the data for the typographic classifier")
-sm = SMOTENC(categorical_features=l, sampling_strategy={1: num_2, 3: num_2}, random_state = 0)
-train_x_C_over, train_y_C_over = sm.fit_sample(train_x_C, train_y_C)
+	bert_feature_C = np.array([bert_feature[i] for i in range(len(labels_train)) if labels_train[i][0] == 1])
+	bert_feature_vali_C = np.array([bert_feature_vali[i] for i in range(len(labels_vali)) if labels_vali[i][0] == 1])
+	bert_feature_test_C = np.array([bert_feature_test[i] for i in range(len(labels_test)) if labels_test[i][0] == 1])
 
-##### Test on Classifier #####
-target_names = ['class 1', 'class 2', 'class 3']
-xgb_C = xgb.XGBClassifier(objective='multi:softmax', learning_rate=0.65)
-print("Fitting the training model for the typographic classifier...")
-xgb_C.fit(train_x_C_over, train_y_C_over)
-pred_C = xgb_C.predict(test_x_C)
-print(accuracy_score(test_y_C, pred_C))
-print(classification_report(test_y_C, pred_C, target_names=target_names, digits=8))
-matrix_C, categories = confusion_matrix(test_y_C, pred_C, labels=[1, 2, 3]), ["Title", "Prose Text", "Miscellany"]
-make_confusion_matrix(matrix_C, categories=categories, sum_stats=False, title="Confusion Matrix of Typographic Classifier", m=1)
+	classifier_numerical, classifier_categorical, size_C, size_C_vali = [], [], len(classifier_features), len(classifier_features_vali)
+	for row in classifier_features:
+	    classifier_numerical.append([row[0], row[1], row[2]])
+	    classifier_categorical.append([row[3], row[4]])
 
-joblib.dump(xgb_C, 'output/xgb_C.pkl')
-print("The typographic classifier is successfully saved!")
+	for row in classifier_features_vali:
+	    classifier_numerical.append([row[0], row[1], row[2]])
+	    classifier_categorical.append([row[3], row[4]])
 
-plot_multiclass_roc(xgb_C, test_x_C, test_y_C, n_classes=3)
+	for row in classifier_features_test:
+	    classifier_numerical.append([row[0], row[1], row[2]])
+	    classifier_categorical.append([row[3], row[4]])
+
+	enc_classifier = OneHotEncoder(handle_unknown='ignore', sparse=False)
+	encoded_C = enc_classifier.fit_transform(classifier_categorical)
+
+	train_x_C, train_y_C = np.hstack((np.array(classifier_numerical)[:size_C, :], encoded_C[:size_C, :], bert_feature_C)), np.array([l[1] for l in labels_train if l[0] == 1])
+	vali_x_C, vali_y_C = np.hstack((np.array(classifier_numerical)[size_C: (size_C+size_C_vali), :], encoded_C[size_C: (size_C+size_C_vali), :], bert_feature_vali_C)), np.array([l[1] for l in labels_vali if l[0] == 1])
+	test_x_C, test_y_C = np.hstack((np.array(classifier_numerical)[(size_C+size_C_vali):, :], encoded_C[(size_C+size_C_vali):, :], bert_feature_test_C)), np.array([l[1] for l in labels_test if l[0] == 1])
+	joblib.dump(enc_classifier, 'output/encoder_C.joblib')
+	print("The encoder for the typographic classifier is successfully saved!")
 
 
+	num_2 = np.count_nonzero(train_y_C == 2)
+	l = [x for x in range(3, encoded_C[:size_C, :].shape[1] + 3)]
+	print("Upsampling for preparing the data for the typographic classifier")
+	sm = SMOTENC(categorical_features=l, sampling_strategy={1: num_2, 3: num_2}, random_state = 0)
+	train_x_C_over, train_y_C_over = sm.fit_sample(train_x_C, train_y_C)
+
+	##### Test on Classifier #####
+	target_names = ['class 1', 'class 2', 'class 3']
+	xgb_C = xgb.XGBClassifier(objective='multi:softmax', learning_rate=0.65)
+	print("Fitting the training model for the typographic classifier...")
+	xgb_C.fit(train_x_C_over, train_y_C_over)
+	pred_C = xgb_C.predict(test_x_C)
+	print(accuracy_score(test_y_C, pred_C))
+	print(classification_report(test_y_C, pred_C, target_names=target_names, digits=8))
+	matrix_C, categories = confusion_matrix(test_y_C, pred_C, labels=[1, 2, 3]), ["Title", "Prose Text", "Miscellany"]
+	make_confusion_matrix(matrix_C, categories=categories, sum_stats=False, title="Confusion Matrix of Typographic Classifier", m=1)
+
+	joblib.dump(xgb_C, 'output/xgb_C.pkl')
+	print("The typographic classifier is successfully saved!")
+
+	plot_multiclass_roc(xgb_C, test_x_C, test_y_C, n_classes=3)
+
+if __name__ == "__main__":
+	main()
