@@ -1,0 +1,75 @@
+<html>
+<style>
+div {border:2px solid DodgerBlue;}
+</style>
+<body>
+<h2>Feature engineering</h2>
+<div>From Wikipedia, the free encyclopedia</div>
+<div>Jump to: navigation, search</div>
+<p>Feature engineering is the process of using domain knowledge of the data to create features that make machine learning algorithms work. Feature engineering is fundamental to the application of machine learning, and is both difficult and expensive. The need for manual feature engineering can be obviated by automated feature learning.</p>
+<p>Feature engineering is an informal topic, but it is considered essential in applied machine learning.</p>
+<p>Coming up with features is difficult, time-consuming, requires expert knowledge. "Applied machine learning" is basically feature engineering.</p>
+<p>— Andrew Ng, Machine Learning and AI via Brain simulations[1]</p>
+<h2>Contents</h2>
+<p>1 Features</p>
+<p>2 Importance of features</p>
+<p>3 The process of feature engineering[6]</p>
+<p>4 Feature relevance[7]</p>
+<p>5 Feature explosion</p>
+<p>6 Automated Feature Engineering</p>
+<p>7 See also</p>
+<p>8 References</p>
+<h2>Features[edit]</h2>
+<p>A feature is an attribute or property shared by all of the independent units on which analysis or prediction is to be done. Any attribute could be a feature, as long as it is useful to the model.</p>
+<p>The purpose of a feature, other than being an attribute, would be much easier to understand in the context of a problem. A feature is a characteristic that might help when solving the problem.[2]</p>
+<h2>Importance of features[edit]</h2>
+<p>The features in your data are important to the predictive models you use and will influence the results you are going to achieve. The quality and quantity of the features will have great influence on whether the model is good or not.[3]</p>
+<p>You could say the better the features are, the better the result is. This isn't entirely true, because the results achieved also depend on the model and the data, not just the chosen features. That said, choosing the right features is still very important. Better features can produce simpler and more flexible models, and they often yield better results.[2]</p>
+<p>The algorithms we used are very standard for Kagglers. […] We spent most of our efforts in feature engineering. [...] We were also very careful to discard features likely to expose us to the risk of over-fitting our model.</p>
+<p>— Xavier Conort, "Q&A with Xavier Conort"[4]</p>
+<p>…some machine learning projects succeed and some fail. What makes the difference? Easily the most important factor is the features used.</p>
+<p>— Pedro Domingos, "A Few Useful Things to Know about Machine Learning"[5]</p>
+<h2>The process of feature engineering[6][edit]</h2>
+<p>Brainstorming or Testing features;</p>
+<p>Deciding what features to create;</p>
+<p>Creating features;</p>
+<p>Checking how the features work with your model;</p>
+<p>Improving your features if needed;</p>
+<p>Go back to brainstorming/creating more features until the work is done.</p>
+<h2>Feature relevance[7][edit]</h2>
+<p>Depending on a feature it could be strongly relevant (has information that doesn't exist in any other feature), relevant, weakly relevant (some information that other features include) or irrelevant. It is important to create a lot of features. Even if some of them are irrelevant, you can't afford missing the rest. Afterwards, feature selection can be used in order to prevent overfitting.[8]</p>
+<h2>Feature explosion[edit]</h2>
+<p>Feature explosion can be caused by feature combination or feature templates, both leading to a quick growth in the total number of features.</p>
+<p>Feature templates - implementing features templates instead of coding new features</p>
+<p>Feature combinations - combinations that cannot be represented by the linear system</p>
+<p>There are a few solutions to help stop feature explosion such as: regularization, kernel method, feature selection.[9]</p>
+<h2>Automated Feature Engineering[edit]</h2>
+<p>Automation of feature engineering has become an emerging topic of research in academia. In 2015, researchers at MIT presented the Deep Feature Synthesis algorithm and demonstrated its effectiveness in online data science competitions where it beat 615 of 906 human teams[10][11]. Deep Feature Synthesis is available as an open source library called Featuretools. That work was followed by other researchers including IBM's OneBM [12] and Berkeley's ExploreKit[13]. The researchers at IBM state that feature engineering automation "helps data scientists reduce data exploration time allowing them to try and error many ideas in short time. On the other hand, it enables non-experts, who are not familiar with data science, to quickly extract value from their data with a little effort, time and cost."</p>
+<p>Commercial tools have emerged from new machine learning focused startups including H20.ai[14] and Feature Labs [15].</p>
+<h2>See also[edit]</h2>
+<p>Covariate</p>
+<p>Hashing trick</p>
+<p>Kernel method</p>
+<p>List of datasets for machine learning research</p>
+<h2>References[edit]</h2>
+<p>Jump up^ "Machine Learning and AI via Brain simulations" (PDF). Stanford University. Retrieved 2017-08-03.</p>
+<p>^ Jump up to:a b "Discover Feature Engineering, How to Engineer Features and How to Get Good at It - Machine Learning Mastery". Machine Learning Mastery. Retrieved 2015-11-11.</p>
+<p>^ "Feature Engineering: How to transform variables and create new ones?". Analytics Vidhya. 2015-03-12. Retrieved 2015-11-12.</p>
+<p>^ kaggle.com,(2015).Q&A with Xavier Conort,[Accessed at:]http://blog.kaggle.com/2013/04/10/qa-with-xavier-conort/%7Caccessdate=November 2015</p>
+<p>^ Domingos, Pedro. "A Few Useful Things to Know about Machine Learning" (PDF). Retrieved 12 November 2015.</p>
+<p>Jump up^ "Big Data: Week 3 Video 3 - Feature Engineering". youtube.com.</p>
+<p>^ "Feature Engineering" (PDF). 2010-04-22. Retrieved 12 November 2015.</p>
+<p>^ "Feature engineering and selection" (PDF). Alexandre Bouchard-Côté. Retrieved 12 November 2015.</p>
+<p>^ "Feature engineering in Machine Learning" (PDF). Zdenek Zabokrtsky. Retrieved 12 November 2015.</p>
+<p>Jump up^ "Automating big-data analysis".</p>
+<p>Jump up^ "Deep Feature Synthesis: Towards Automating Data Science Endeavors" (PDF).</p>
+<p>Jump up^ "One button machine for automating feature engineering in relational databases" (PDF).</p>
+<p>Jump up^ "ExploreKit: Automatic Feature Generation and Selection" (PDF).</p>
+<p>Jump up^ "H2O.AI snares $40M Series C investment led by Wells Fargo and Nvidia".</p>
+<p>^ "Feature Labs launches out of MIT to accelerate the development of machine learning algorithms".</p>
+<p>Retrieved from "https://en.wikipedia.org/w/index.php?title=Feature_engineering&oldid=827289425"</p>
+<p>Categories:</p>
+<p>Machine learning</p>
+<div>Andrew Yan-Tak Ng is a Chinese American computer scientist. He is the former chief scientist at Baidu, where he led the company's Artificial Intelligence Group. He is an adjunct professor at Stanford University. Ng is also the co-founder and chairman of Coursera, an online education platform.</div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+1. Some parts of the content of "Arstechnica" are hidden, so I just deleted the hidden parts.
+2. The main content of "neworleans" belongs to a part of a table, so the table tag is deleted.
+3. The main content of "TheWeatherChannel" belongs to a part of a table, so the table tag is deleted.
+4. The main content of "Wikimedia" belongs to a part of a table, so the table tag is deleted.
+5. "Yahoo" only has a title, so it is deleted.
+6. The main content of "biblehub" belongs to a part of a table, so the table tag is deleted.
+7. The main content of "BoardGamegeek" belongs to a part of a table, so the table tag is deleted.
+8. The main content of "Fotki" belongs to a part of a table, so the table tag is deleted.

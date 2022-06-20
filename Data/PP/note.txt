@@ -1,0 +1,13 @@
+1. "activision.com" is deleted, because there are a lot of hidden contents.
+2. "aliexpress.com" is deleted, because it is the same as "alibaba.com".
+3. The main content of "fatsecret.com" belongs to a part of a table, so the table tag is deleted.
+4. "huffingtonpost.com" is deleted, because it is the same as "aol.com".
+5. Some of the <script> tags in "merriamwebster" are deleted, since browsers return an error for the original content.
+6. "msdonalds.com" is deleted, because it is the same as "mcdonalds.com".
+7. Major modifications are needed for the HTML code of "razerzone.com" in order to show its content, so it is deleted.
+8. The content of "stackoverflow.com" is a table, so this folder is deleted.
+9. "tesco.com" is deleted, because there are a lot of hidden contents.
+10. "twitter.com" is deleted, because it is the same as "t.co".
+11. <head> tag and some of the <script> tags in "wetransfer.com" are deleted, since browsers return errors for the original content.
+12. The main content of "ikea.com" belongs to a part of a table, so the table tag is deleted.
+13. The main content of "totallyhermedia.com" belongs to a part of a table, so the table tag is deleted.

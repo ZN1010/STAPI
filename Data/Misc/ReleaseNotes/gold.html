@@ -1,0 +1,107 @@
+<html>
+<style>
+div {border:2px solid DodgerBlue;}
+</style>
+<body>
+<h2>Release notes</h2>
+<p>This information is drawn from the GitHub conda project changelog: https://github.com/conda/conda/blob/master/CHANGELOG.md</p>
+<h2>4.4.10 (2018-02-09)</h2>
+<h2>Bug Fixes</h2>
+<p>fix #6837 require at least futures 3.0.0 (#6855)</p>
+<p>fix #6852 ensure temporary path is writable (#6856)</p>
+<p>fix #6833 improve feature mismatch metric (via 4.3.34 #6853)</p>
+<h2>4.4.9 (2018-02-06)</h2>
+<h2>Improvements</h2>
+<p>resolve #6632 display package removal plan when deleting an env (#6801)</p>
+<h2>Bug Fixes</h2>
+<p>fix #6531 don’t drop credentials for conda-build workaround (#6798)</p>
+<p>fix external command execution issue (#6789)</p>
+<p>fix #5792 conda env export error common in path (#6795)</p>
+<p>fix #6390 add CorruptedEnvironmentError (#6778)</p>
+<p>fix #5884 allow –insecure CLI flag without contradicting meaning of ssl_verify (#6782)</p>
+<p>fix MatchSpec.match() accepting dict (#6808)</p>
+<p>fix broken Anaconda Prompt for users with spaces in paths (#6825)</p>
+<p>JSONDecodeError was added in Python 3.5 (#6848)</p>
+<p>fix #6796 update PATH/prompt on reactivate (#6828)</p>
+<p>fix #6401 non-ascii characters on windows using expanduser (#6847)</p>
+<p>fix #6824 import installers before invoking any (#6849)</p>
+<h2>4.4.8 (2018-01-25)</h2>
+<h2>Improvements</h2>
+<p>allow falsey values for default_python to avoid pinning python (#6682)</p>
+<p>resolve #6700 add message for no space left on device (#6709)</p>
+<p>make variable ‘sourced’ local for posix shells (#6726)</p>
+<p>add column headers to conda list results (#5726)</p>
+<h2>Bug Fixes</h2>
+<p>fix #6713 allow parenthesis in prefix path for conda.bat (#6722)</p>
+<p>fix #6684 –force message (#6723)</p>
+<p>fix #6693 KeyError with ‘–update-deps’ (#6694)</p>
+<p>fix aggressive_update_packages availability (#6727)</p>
+<p>fix #6745 don’t truncate channel priority map in conda installer (#6746)</p>
+<p>add workaround for system Python usage by lsb_release (#6769)</p>
+<p>fix #6624 can’t start new thread (#6653)</p>
+<p>fix #6628 ‘conda install –rev’ in conda 4.4 (#6724)</p>
+<p>fix #6707 FileNotFoundError when extracting tarball (#6708)</p>
+<p>fix #6704 unexpected token in conda.bat (#6710)</p>
+<p>fix #6208 return for no pip in environment (#6784)</p>
+<p>fix #6457 env var cleanup (#6790)</p>
+<p>fix #6645 escape paths for argparse help (#6779)</p>
+<p>fix #6739 handle unicode in environment variables for py2 activate (#6777)</p>
+<p>fix #6618 RepresenterError with ‘conda config –set’ (#6619)</p>
+<p>fix #6699 suppress memory error upload reports (#6776)</p>
+<p>fix #6770 CRLF for cmd.exe (#6775)</p>
+<p>fix #6514 add message for case-insensitive filesystem errors (#6764)</p>
+<p>fix #6537 AttributeError value for url not set (#6754)</p>
+<p>fix #6748 only warn if unable to register environment due to EACCES (#6752)</p>
+<h2>4.4.7 (2018-01-08)</h2>
+<h2>Improvements</h2>
+<p>resolve #6650 add upgrade message for unicode errors in python 2 (#6651)</p>
+<h2>Bug Fixes</h2>
+<p>fix #6643 difference between == and exact_match_ (#6647)</p>
+<p>fix #6620 KeyError(u’CONDA_PREFIX’,) (#6652)</p>
+<p>fix #6661 remove env from environments.txt (#6662)</p>
+<p>fix #6629 ‘conda update –name’ AssertionError (#6656)</p>
+<p>fix #6630 repodata AssertionError (#6657)</p>
+<p>fix #6626 add setuptools as constrained dependency (#6654)</p>
+<p>fix #6659 conda list explicit should be dependency sorted (#6671)</p>
+<p>fix #6665 KeyError for channel ‘&lt;unknown&gt;’ (#6668, #6673)</p>
+<p>fix #6627 AttributeError on ‘conda activate’ (#6655)</p>
+<h2>4.4.6 (2017-12-31)</h2>
+<h2>Bug Fixes</h2>
+<p>fix #6612 do not assume Anaconda Python on Windows nor Librarybin hack (#6615)</p>
+<p>recipe test improvements and associated bug fixes (#6614)</p>
+<h2>4.4.5 (2017-12-29)</h2>
+<h2>Bug Fixes</h2>
+<p>fix #6577, #6580 single quote in PS1 (#6585)</p>
+<p>fix #6584 os.getcwd() FileNotFound (#6589)</p>
+<p>fix #6592 deactivate command order (#6602)</p>
+<p>fix #6579 python not recognized as command (#6588)</p>
+<p>fix #6572 cached repodata PermissionsError (#6573)</p>
+<p>change instances of ‘root’ to ‘base’ (#6598)</p>
+<p>fix #6607 use subprocess rather than execv for conda command extensions (#6609)</p>
+<p>fix #6581 git-bash activation (#6587)</p>
+<p>fix #6599 space in path to base prefix (#6608)</p>
+<h2>4.4.4 (2017-12-24)</h2>
+<h2>Improvements</h2>
+<p>add SUDO_ env vars to info reports (#6563)</p>
+<p>add additional information to the #6546 exception (#6551)</p>
+<h2>Bug Fixes</h2>
+<p>fix #6548 ‘conda update’ installs packages not in prefix #6550</p>
+<p>fix #6546 update after creating an empty env (#6568)</p>
+<p>fix #6557 conda list FileNotFoundError (#6558)</p>
+<p>fix #6554 package cache FileNotFoundError (#6555)</p>
+<p>fix #6529 yaml parse error (#6560)</p>
+<p>fix #6562 repodata_record.json permissions error stack trace (#6564)</p>
+<p>fix #6520 –use-local flag (#6526)</p>
+<h2>4.4.3 (2017-12-22)</h2>
+<h2>Improvements</h2>
+<p>adjust error report message (#6534)</p>
+<h2>Bug Fixes</h2>
+<p>fix #6530 package cache JsonDecodeError / ValueError (#6533)</p>
+<p>fix #6538 BrokenPipeError (#6540)</p>
+<p>fix #6532 remove anaconda metapackage hack (#6539)</p>
+<p>fix #6536 ‘conda env export’ for old versions of pip (#6535)</p>
+<p>fix #6541 py2 and unicode in environments.txt (#6542)</p>
+<h2>Non-User-Facing Changes</h2>
+<p>regression tests for #6512 (#6515)</p>
+</body>
+</html>

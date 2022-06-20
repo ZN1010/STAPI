@@ -1,0 +1,7 @@
+1. "Botany" folder was deleted, because the content of the HTMl cannot be displayed properly using various browsers.
+
+2. "cbs_interactive" folder is a duplicate of "cbs".
+
+3. "ReleaseNotes" has more than 1850 number of lines. I only annotated the first 100 lines, since the whole document has a consistent pattern throughout.
+
+4. "responsive_web" folder was deleted, because code snippet is the major content of its body and extracting code is out of the scope of this project.
